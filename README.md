@@ -13,7 +13,7 @@ See the classroom instruction and code comments for more details on each of thes
 
 ## Implementation Steps
 
-MP.1 Data Buffer Optimization
+### MP.1 Data Buffer Optimization
 
 The "ring buffer" is successfully implemented. Here is code
 
@@ -28,7 +28,8 @@ The "ring buffer" is successfully implemented. Here is code
                 dataBuffer.erase(dataBuffer.begin());
             }
 
-MP.2 Keypoint Detection
+### MP.2 Keypoint Detection
+
 HARRIS, FAST, BRISK, ORB, AKAZE, and SIFT keypoint detectors were implemented and it is in the file src/matching2D_Student.cpp
 There are 3 functions for all detectors
 
@@ -37,7 +38,7 @@ There are 3 functions for all detectors
 		void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis=false)
 
 
-MP.3 Keypoint Removal
+### MP.3 Keypoint Removal
 
 		// only keep keypoints on the preceding vehicle
                     bool bFocusOnVehicle = true;
@@ -61,18 +62,18 @@ MP.3 Keypoint Removal
                     }
 
 
-MP.4 Keypoint Descriptors
+### MP.4 Keypoint Descriptors
 The implementation of BRIEF, ORB, FREAK, AKAZE and SIFT descriptors were done in the file src/matching2D_Student.cpp
 		void descKeypoints(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, std::string descriptorType)
 
-MP.5 Descriptor Matching
+### MP.5 Descriptor Matching
 FLANN matcher and kNN matchers were implemented in the file src/matching2D_Student.cpp and function is
 
 		void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::KeyPoint> &kPtsRef, cv::Mat &descSource, cv::Mat &descRef,
                       std::vector<cv::DMatch> &matches, std::string descriptorType, std::string matcherType, std::string selectorType)
 
 
-MP.6 Descriptor Distance Ratio
+### MP.6 Descriptor Distance Ratio
 
 		double minDescDistRatio = 0.8;
         for (auto iter_ = knn_matches.begin(); iter_ != knn_matches.end(); ++iter_)
@@ -84,10 +85,10 @@ MP.6 Descriptor Distance Ratio
             }
         }
 
-## Performance analysis
-MP.7 - MP.9
+## Performance Evaluation
+### MP.7 - MP.9
 
-Table formed using data from program given below. Detected keypoints, time taken and distribution neighborhood size are given in the table. Total time taken for both detectors and describers in all combinations for 10 images is calculated and sorted according to total time. All data can be accessed [spreadsheet data](../blob/master/PerformanceEvaluation.xlsx)
+Table formed using data from program given below. Detected keypoints, time taken and distribution neighborhood size are given in the table. Total time taken for both detectors and describers in all combinations for 10 images is calculated and sorted according to total time. All data can be accessed [spreadsheet data](../master/PerformanceEvaluation.xlsx)
 
 | Detector  | Descriptor | Average time | Average keypoints | Average neighburhood size |
 | --------- | ---------- | ------------ | ----------------- | ------------------------- |
