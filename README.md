@@ -11,6 +11,25 @@ The idea of the camera course is to build a collision detection system - that's 
 
 See the classroom instruction and code comments for more details on each of these parts. Once you are finished with this project, the keypoint matching part will be set up and you can proceed to the next lesson, where the focus is on integrating Lidar points and on object detection using deep-learning. 
 
+## Performance analysis
+
+### MP.7
+
+Table formed using data from program given below. Detected keypoints and distribution neighborhood size are given in the table.
+
+<img src="images/2d_f_mp_7.JPG"/>
+
+### MP.8
+
+Total time taken for both detectors and describers in all combinations for 10 images is calculated and sorted according to total time.
+
+<img src="images/2d_f_mp_8.JPG"/>
+
+### MP.9
+
+From the table above, it is clear that FAST/ORB and FAST/BRIEF combination required the least time and it is also detecting highest number of keypoints. However distribution neighborhood size is not so large for these combinations. When all three parameters are taken into consideration (time, keypoint number, distribution neighborhood size), the better combinationations can be sorted out as BRISK/BRIEF and BRISK/ORB 
+
+
 ## Dependencies for Running Locally
 * cmake >= 2.8
   * All OSes: [click here for installation instructions](https://cmake.org/install/)
