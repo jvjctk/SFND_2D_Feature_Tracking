@@ -11,21 +11,115 @@ The idea of the camera course is to build a collision detection system - that's 
 
 See the classroom instruction and code comments for more details on each of these parts. Once you are finished with this project, the keypoint matching part will be set up and you can proceed to the next lesson, where the focus is on integrating Lidar points and on object detection using deep-learning. 
 
+## Implementation Steps
+
+MP.1 Data Buffer Optimization
+
+The "ring buffer" is successfully implemented. Here is code
+
+		 // push image into data frame buffer
+          DataFrame frame;
+          frame.cameraImg = imgGray;
+          dataBuffer.push_back(frame);
+
+		// removing youngest data frame
+          if(dataBuffer.size()>dataBufferSize)
+        	{
+                dataBuffer.erase(dataBuffer.begin());
+            }
+
+MP.2 Keypoint Detection
+HARRIS, FAST, BRISK, ORB, AKAZE, and SIFT keypoint detectors were implemented and it is in the file src/matching2D_Student.cpp
+There are 3 functions for all detectors
+
+		void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis=false)
+		void detKeypointsShiTomasi(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis=false)
+		void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis=false)
+
+
+MP.3 Keypoint Removal
+
+		// only keep keypoints on the preceding vehicle
+                    bool bFocusOnVehicle = true;
+                    double N_size = 0;
+                    cv::Rect vehicleRect(535, 180, 180, 150);
+                    if (bFocusOnVehicle)
+                    {
+                        vector<cv::KeyPoint> keypoints_f;            
+
+                        for (auto pts : keypoints)
+                        {
+                            if(vehicleRect.contains(pts.pt))
+                            {
+                                keypoints_f.push_back(pts);
+                                N_size += pts.size;
+                            }
+
+                        }
+
+                        keypoints = keypoints_f;            
+                    }
+
+
+MP.4 Keypoint Descriptors
+The implementation of BRIEF, ORB, FREAK, AKAZE and SIFT descriptors were done in the file src/matching2D_Student.cpp
+		void descKeypoints(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, std::string descriptorType)
+
+MP.5 Descriptor Matching
+FLANN matcher and kNN matchers were implemented in the file src/matching2D_Student.cpp and function is
+
+		void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::KeyPoint> &kPtsRef, cv::Mat &descSource, cv::Mat &descRef,
+                      std::vector<cv::DMatch> &matches, std::string descriptorType, std::string matcherType, std::string selectorType)
+
+
+MP.6 Descriptor Distance Ratio
+
+		double minDescDistRatio = 0.8;
+        for (auto iter_ = knn_matches.begin(); iter_ != knn_matches.end(); ++iter_)
+        {
+
+            if ((*iter_)[0].distance < minDescDistRatio * (*iter_)[1].distance)
+            {
+                matches.push_back((*iter_)[0]);
+            }
+        }
+
 ## Performance analysis
+MP.7 - MP.9
 
-### MP.7
+Table formed using data from program given below. Detected keypoints, time taken and distribution neighborhood size are given in the table. Total time taken for both detectors and describers in all combinations for 10 images is calculated and sorted according to total time. All data can be accessed [spreadsheet data](../blob/master/PerformanceEvaluation.xlsx)
 
-Table formed using data from program given below. Detected keypoints and distribution neighborhood size are given in the table.
+| Detector  | Descriptor | Average time | Average keypoints | Average neighburhood size |
+| --------- | ---------- | ------------ | ----------------- | ------------------------- |
+| FAST      | ORB        | 3.451387     | 409.4             | 7                         |
+| FAST      | BRIEF      | 3.582435     | 409.4             | 7                         |
+| ORB       | BRIEF      | 8.3438555    | 116.1             | 56.05777                  |
+| ORB       | ORB        | 12.323073    | 116.1             | 56.05777                  |
+| HARRIS    | ORB        | 15.9667138   | 24.8              | 6                         |
+| HARRIS    | BRIEF      | 16.1804556   | 24.8              | 6                         |
+| SHITOMASI | ORB        | 18.0332262   | 117.9             | 4                         |
+| SHITOMASI | BRIEF      | 19.1426192   | 117.9             | 4                         |
+| SHITOMASI | SIFT       | 28.35501     | 117.9             | 4                         |
+| HARRIS    | SIFT       | 31.23538     | 24.8              | 6                         |
+| FAST      | SIFT       | 49.040224    | 409.4             | 7                         |
+| FAST      | FREAK      | 50.979883    | 409.4             | 7                         |
+| ORB       | FREAK      | 54.264704    | 116.1             | 56.05777                  |
+| SHITOMASI | FREAK      | 59.42099     | 117.9             | 4                         |
+| HARRIS    | FREAK      | 61.10884     | 24.8              | 6                         |
+| ORB       | SIFT       | 82.654306    | 116.1             | 56.05777                  |
+| AKAZE     | BRIEF      | 111.9544461  | 167               | 7.693412                  |
+| AKAZE     | ORB        | 114.388948   | 167               | 7.693412                  |
+| AKAZE     | SIFT       | 136.6704     | 167               | 7.693412                  |
+| AKAZE     | FREAK      | 157.35937    | 167               | 7.693412                  |
+| SIFT      | BRIEF      | 162.4701635  | 138.6             | 5.032345                  |
+| AKAZE     | AKAZE      | 201.34052    | 167               | 7.693412                  |
+| SIFT      | FREAK      | 207.25367    | 138.6             | 5.032345                  |
+| SIFT      | SIFT       | 240.41405    | 138.6             | 5.032345                  |
+| BRISK     | BRIEF      | 433.969873   | 276.2             | 21.94222                  |
+| BRISK     | ORB        | 438.361553   | 276.2             | 21.94222                  |
+| BRISK     | FREAK      | 482.20679    | 276.2             | 21.94222                  |
+| BRISK     | SIFT       | 496.29102    | 276.2             | 21.94222                  |
 
-<img src="images/2d_f_mp_7.JPG"/>
-
-### MP.8
-
-Total time taken for both detectors and describers in all combinations for 10 images is calculated and sorted according to total time.
-
-<img src="images/2d_f_mp_8.JPG"/>
-
-### MP.9
 
 From the table above, it is clear that FAST/ORB and FAST/BRIEF combination required the least time and it is also detecting highest number of keypoints. However distribution neighborhood size is not so large for these combinations. When all three parameters are taken into consideration (time, keypoint number, distribution neighborhood size), the better combinationations can be sorted out as BRISK/BRIEF and BRISK/ORB 
 
